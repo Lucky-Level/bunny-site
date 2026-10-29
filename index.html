@@ -1,5 +1,10 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="pt-BR"><head>
+<script>
+/* Links de convite/senha do Supabase chegam na raiz do site com os dados no "#": manda para /convite. */
+if (/[#&](access_token|error_description|error_code)=/.test(location.hash)) { location.replace("/convite" + location.hash); }
+</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Bunny: sua equipe de agentes de IA, pronta para trabalhar. Roda no seu computador e só muda algo depois do seu OK.">
 <meta property="og:title" content="Bunny"><meta property="og:description" content="Sua equipe de agentes de IA, pronta para trabalhar.">
 <title>Bunny</title>
