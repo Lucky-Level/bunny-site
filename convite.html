@@ -2,118 +2,34 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Crie sua senha · Bunny</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<meta name="referrer" content="no-referrer">
+<title>Convite — Bunny</title>
 <style>
-:root{--bg:#080808;--surface:#171717;--line:rgba(255,255,255,.08);--text:#f2f2f2;--muted:rgba(255,255,255,.58);--teal:#54b9a6;--danger:#bd554c;--display:'Plus Jakarta Sans',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif}
+:root{--bg:#080808;--surface:#171717;--line:rgba(255,255,255,.14);--text:#f2f2f2;--text-2:rgba(255,255,255,.72);--teal:#54b9a6;--danger:#e0786f;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:16px;background:var(--bg);color:var(--text);font:16px/1.5 var(--body)}
-main{width:100%;max-width:420px;border:1px solid var(--line);border-radius:16px;padding:28px 24px;background:var(--surface)}
-h1{margin:0 0 6px;font:800 24px/1.2 var(--display)}
-p{margin:0 0 16px;color:var(--muted)}
-label{display:block;margin:12px 0 6px;font-size:14px;color:var(--muted)}
-input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#0f0f0f;color:var(--text);font:inherit}
-input:focus{outline:2px solid var(--teal);outline-offset:1px}
-button{width:100%;min-height:46px;margin-top:20px;border:0;border-radius:10px;background:var(--teal);color:#06110e;font:700 16px var(--display);cursor:pointer}
-button:disabled{opacity:.55;cursor:default}
-.err{margin-top:12px;color:#ff9a90;font-size:14px}
-.ok{color:var(--teal)}
-.who{font-weight:600;color:var(--text)}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--text);font:17px/1.6 Inter,system-ui,sans-serif;padding:24px 16px}
+main{width:100%;max-width:460px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:32px 28px}
+h1{font-size:26px;line-height:1.2;margin:0 0 12px;letter-spacing:-.02em}
+p{margin:0 0 14px;color:var(--text-2)}
+strong{color:var(--text)}
+.mail{display:block;margin:0 0 16px;padding:12px 14px;border:1px solid var(--teal);border-radius:12px;color:var(--text);word-break:break-all}
+label{display:block;font-size:14px;margin:14px 0 6px;color:var(--text-2)}
+input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#0e0e0e;color:var(--text);font:inherit}
+input:focus-visible,button:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+button{margin-top:18px;width:100%;padding:13px;border-radius:999px;border:0;background:var(--teal);color:#06130f;font:600 16px inherit;cursor:pointer}
+button[disabled]{opacity:.6;cursor:wait}
+.err{color:var(--danger);margin-top:12px;min-height:1.4em;font-size:15px}
+a{color:var(--teal)}
+details{margin-top:18px}
+summary{cursor:pointer;color:var(--text-2)}
 [hidden]{display:none!important}
+.last{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);font-size:15px}
 </style>
 </head>
 <body>
-<main>
-  <h1 id="title">Crie sua senha</h1>
-  <p id="lead">Falta só isso para entrar no time do Bunny.</p>
-
-  <form id="form" hidden novalidate>
-    <p>Conta: <span class="who" id="who"></span></p>
-    <label for="pw">Senha (mínimo 8 caracteres)</label>
-    <input id="pw" type="password" autocomplete="new-password" minlength="8" required>
-    <label for="pw2">Repita a senha</label>
-    <input id="pw2" type="password" autocomplete="new-password" minlength="8" required>
-    <button id="go" type="submit">Salvar senha</button>
-    <div class="err" id="err" role="alert"></div>
-  </form>
-
-  <div id="done" hidden>
-    <p class="ok">Senha criada.</p>
-    <p>Agora abra o <strong>Bunny</strong> no computador, vá em <strong>Ajustes &gt; Time</strong> e entre com este e-mail e a senha que você acabou de criar. Você entra no time automaticamente.</p>
-  </div>
-
-  <div id="bad" hidden>
-    <p id="badmsg"></p>
-    <p>Peça um novo convite a quem administra o time, ou use “Esqueci a senha” no Bunny (Ajustes &gt; Time).</p>
-  </div>
-</main>
-<script>
-(function () {
-  var URL_BASE = "https://lafxjbnszkhnkolzjznx.supabase.co";
-  var KEY = "sb_publishable_wbgzM8RJnWONPsrko__7Sw_1DRZYZrB";
-  var $ = function (id) { return document.getElementById(id); };
-
-  // Os dados do link chegam no "#" da URL (o servidor do site nunca os recebe).
-  var params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  var token = params.get("access_token");
-  var failure = params.get("error_description") || params.get("error");
-  // Tira o token da barra de endereço.
-  try { history.replaceState(null, "", window.location.pathname); } catch (e) {}
-
-  function show(id) { ["form", "done", "bad"].forEach(function (x) { $(x).hidden = x !== id; }); }
-
-  function readEmail(jwt) {
-    try {
-      var body = jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-      var data = JSON.parse(decodeURIComponent(escape(atob(body))));
-      return typeof data.email === "string" ? data.email : "";
-    } catch (e) { return ""; }
-  }
-
-  if (!token) {
-    $("title").textContent = "Link inválido ou vencido";
-    $("lead").textContent = "";
-    $("badmsg").textContent = failure
-      ? "O link não funcionou: " + failure.replace(/\+/g, " ")
-      : "Abra o link direto do e-mail que você recebeu.";
-    show("bad");
-    return;
-  }
-
-  $("who").textContent = readEmail(token) || "sua conta";
-  show("form");
-
-  $("form").addEventListener("submit", function (event) {
-    event.preventDefault();
-    var pw = $("pw").value, pw2 = $("pw2").value;
-    $("err").textContent = "";
-    if (pw.length < 8) { $("err").textContent = "A senha precisa ter pelo menos 8 caracteres."; return; }
-    if (pw !== pw2) { $("err").textContent = "As duas senhas não são iguais."; return; }
-    $("go").disabled = true;
-    fetch(URL_BASE + "/auth/v1/user", {
-      method: "PUT",
-      headers: { "content-type": "application/json", apikey: KEY, authorization: "Bearer " + token },
-      body: JSON.stringify({ password: pw })
-    }).then(function (res) {
-      return res.json().catch(function () { return {}; }).then(function (body) { return { ok: res.ok, body: body }; });
-    }).then(function (r) {
-      if (r.ok) { $("title").textContent = "Tudo certo"; $("lead").textContent = ""; show("done"); return; }
-      var raw = String((r.body && (r.body.msg || r.body.message || r.body.error_description)) || "");
-      var msg = /same|different/i.test(raw) ? "Escolha uma senha diferente da anterior."
-        : /weak|short|at least/i.test(raw) ? "Senha fraca demais. Use 8 ou mais caracteres."
-        : /expired|invalid|jwt/i.test(raw) ? "O link venceu. Peça um novo convite."
-        : "Não deu certo agora. Tente de novo em instantes.";
-      $("err").textContent = msg;
-      $("go").disabled = false;
-    }).catch(function () {
-      $("err").textContent = "Sem conexão com o servidor. Verifique a internet e tente de novo.";
-      $("go").disabled = false;
-    });
-  });
-})();
-</script>
+<main id="app" aria-live="polite"><h1>Um instante…</h1></main>
+<script src="/convite.js"></script>
 </body>
 </html>
